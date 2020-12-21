@@ -3,11 +3,10 @@
 #include <iostream>
 #include "omp.h"
 #include "linear_system_input.h"
-#include <ctime>/*
-#pragma comment(lib,"C:\\Users\\AndreiKoloskov\\Downloads\\mpfr_mpir_x86_x64_msvc2010\\mpir\\dll\\x64\\Debug\\mpir.lib")
-#include "C:\\Users\\AndreiKoloskov\\Downloads\\mpfr_mpir_x86_x64_msvc2010\\mpir\\dll\\x64\\Debug\\mpir.h"
-#include "C:\\Users\\AndreiKoloskov\\Downloads\\mpfr_mpir_x86_x64_msvc2010\\mpir\\dll\\x64\\Debug\\gmp.h"*/
+#include <ctime>
 using namespace std;
+
+#define NumThreads 4
 
 vector<vector<double>> copy_matrix(vector<vector<double>> arr, int N) {
     vector<vector<double>> u = {};
@@ -170,7 +169,7 @@ std::vector<double> cramer_solving(std::vector<std::vector<double> >& matrix, st
     return solution;
 }
 int main() {
-    omp_set_num_threads(8);
+    omp_set_num_threads(NumThreads);
     srand(time(0));
     LinearSystemInput input;
     input.read_equations_from_file("C:\\Users\\AndreiKoloskov\\Documents\\kramer\\input.txt");
@@ -193,7 +192,7 @@ int main() {
     }
     vector<vector<double>>m1 = copy_matrix(matrix, matrix_rank);
     vector<vector<double>> m2 = copy_matrix(matrix, matrix_rank);
-    
+    cout << "working with " << NumThreads << " threads" << endl;
     cout << "solving with sequintial" << endl;
     double start1 = (double)clock() / 1000;
     std::vector<double> solution1 = cramer_solving(m1, freTerms, matrix_rank);
@@ -218,7 +217,8 @@ int main() {
         std::cout << "X" << i + 1 << " = " << solution2[i] << std::endl;
     }
     cout << "time of solving a system of equations with dimension " << matrix_rank << " with openMp: " << end2 - start2 << " seconds" << endl;
-   
+    
+    cout << "boost " << (end1 - start1) / (end2 - start2) << endl;
   
 }
 
